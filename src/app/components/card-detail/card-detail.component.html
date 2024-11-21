@@ -1,0 +1,66 @@
+<div class="container mx-auto px-4 py-8">
+  <button (click)="goBack()" class="mb-6 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center gap-2">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+      <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+    </svg>
+    Volver
+  </button>
+
+  <div *ngIf="!loading && card" class="grid grid-cols-1 md:grid-cols-2 gap-8">
+    <!-- Imagen de la carta -->
+    <div class="relative group">
+      <img [src]="card.images.large" [alt]="card.name"
+           [ngStyle]="{'view-transition-name': 'card-' + card.id}"
+           class="w-full rounded-xl shadow-lg transform transition-all duration-300 group-hover:scale-[1.02]">
+    </div>
+
+    <!-- Detalles de la carta -->
+    <div class="bg-white p-8 rounded-xl shadow-lg">
+      <h1 class="text-4xl font-bold mb-6 text-gray-800">{{card.name}}</h1>
+
+      <!-- Información Básica -->
+      <div class="mb-8 bg-gray-50 p-6 rounded-lg">
+        <h2 class="text-2xl font-semibold mb-4 text-gray-700">Información Básica</h2>
+        <div class="space-y-3">
+          <p class="flex items-center">
+            <span class="font-medium text-gray-700 w-24">Set:</span>
+            <span class="text-gray-600">{{card.set.name}}</span>
+          </p>
+          <p class="flex items-center">
+            <span class="font-medium text-gray-700 w-24">Número:</span>
+            <span class="text-gray-600">{{card.number}}/{{card.set.total}}</span>
+          </p>
+          <p class="flex items-center">
+            <span class="font-medium text-gray-700 w-24">Rareza:</span>
+            <span class="text-gray-600">{{card.rarity}}</span>
+          </p>
+        </div>
+      </div>
+
+      <!-- Ataques -->
+      <div *ngIf="card.attacks" class="mb-8">
+        <h2 class="text-2xl font-semibold mb-4 text-gray-700">Ataques</h2>
+        <div class="space-y-4">
+          <div *ngFor="let attack of card.attacks"
+               class="bg-gray-50 p-4 rounded-lg hover:bg-gray-100 transition-colors">
+            <p class="font-semibold text-lg text-gray-800 mb-2">{{attack.name}}</p>
+            <p class="text-gray-600">{{attack.text}}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Debilidades -->
+      <div *ngIf="card.weaknesses" class="mb-8">
+        <h2 class="text-2xl font-semibold mb-4 text-gray-700">Debilidades</h2>
+        <div class="flex gap-4">
+          <div *ngFor="let weakness of card.weaknesses"
+               class="bg-red-50 px-4 py-2 rounded-lg">
+            <p class="text-red-600">
+              {{weakness.type}}: {{weakness.value}}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
