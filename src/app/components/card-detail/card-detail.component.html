@@ -6,6 +6,45 @@
     Volver
   </button>
 
+  <div *ngIf="loading" class="grid grid-cols-1 md:grid-cols-2 gap-8">
+    <!-- Skeleton de la imagen -->
+    <div class="animate-pulse bg-gray-200 rounded-xl aspect-[2.5/3.5]"></div>
+
+    <!-- Skeleton de los detalles -->
+    <div class="animate-pulse bg-white p-8 rounded-xl shadow-lg">
+      <!-- Título -->
+      <div class="h-10 bg-gray-200 rounded-lg w-3/4 mb-6"></div>
+
+      <!-- Información Básica -->
+      <div class="mb-8 bg-gray-50 p-6 rounded-lg">
+        <div class="h-8 bg-gray-200 rounded-lg w-1/2 mb-4"></div>
+        <div class="space-y-3">
+          <div class="h-6 bg-gray-200 rounded-lg"></div>
+          <div class="h-6 bg-gray-200 rounded-lg"></div>
+          <div class="h-6 bg-gray-200 rounded-lg"></div>
+        </div>
+      </div>
+
+      <!-- Ataques -->
+      <div class="mb-8">
+        <div class="h-8 bg-gray-200 rounded-lg w-1/2 mb-4"></div>
+        <div class="space-y-4">
+          <div class="h-24 bg-gray-200 rounded-lg"></div>
+          <div class="h-24 bg-gray-200 rounded-lg"></div>
+        </div>
+      </div>
+
+      <!-- Debilidades -->
+      <div>
+        <div class="h-8 bg-gray-200 rounded-lg w-1/2 mb-4"></div>
+        <div class="flex gap-4">
+          <div class="h-10 w-20 bg-gray-200 rounded-lg"></div>
+          <div class="h-10 w-20 bg-gray-200 rounded-lg"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div *ngIf="!loading && card" class="grid grid-cols-1 md:grid-cols-2 gap-8">
     <!-- Imagen de la carta -->
     <div class="relative group">
