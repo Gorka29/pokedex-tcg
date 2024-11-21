@@ -1,17 +1,21 @@
 <div class="container mx-auto px-4 py-8 dark:bg-gray-900">
   <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
     <div *ngFor="let card of cards"
-         class="card transform hover:scale-105 transition-transform duration-200 bg-white dark:bg-gray-800 rounded-xl shadow-md dark:shadow-gray-700/50 overflow-hidden cursor-pointer"
+         class="card bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-200 overflow-hidden cursor-pointer"
          [routerLink]="['/card', card.id]">
-      <div class="relative group bg-gray-100 dark:bg-gray-900">
+      <div class="relative">
         <img [src]="card.images.large"
              [alt]="card.name"
              [ngStyle]="{'view-transition-name': 'card-' + card.id}"
-             class="w-full h-auto object-contain rounded-xl">
+             class="w-full h-auto object-contain">
       </div>
-      <div class="p-5 bg-white dark:from-gray-800 dark:via-gray-900 dark:to-gray-950">
-        <h3 class="text-xl font-bold text-gray-800 dark:text-gray-100 mb-2">{{ card.name }}</h3>
-        <p class="text-gray-600 dark:text-gray-300">Set: {{ card.set.name }}</p>
+      <div class="p-4">
+        <h3 class="text-xl font-bold text-gray-900 dark:text-gray-100">{{ card.name }}</h3>
+        <div class="mt-2 flex justify-between items-center">
+          <p class="text-gray-600 dark:text-gray-400">Set: {{ card.set.name }}</p>
+          <p class="text-gray-600 dark:text-gray-400">HP: {{ card.hp }}</p>
+        </div>
+        <p class="mt-1 text-gray-600 dark:text-gray-400">Tipo: {{ card.types[0] }}</p>
       </div>
     </div>
 

@@ -1,6 +1,25 @@
 .card {
   transition: transform 0.3s ease;
 }
+
 .card:hover {
   transform: scale(1.05);
+}
+
+.card-info {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: white;
+  padding: 1rem;
+  transform: translateY(-1px);
+  min-height: 120px; /* Ajusta este valor según necesites */
+}
+
+/* Para modo oscuro */
+@media (prefers-color-scheme: dark) {
+  .card-info {
+    background-color: rgb(31, 41, 55); /* dark:bg-gray-800 */
+  }
 }
