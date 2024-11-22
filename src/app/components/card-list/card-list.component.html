@@ -1,23 +1,73 @@
 <div class="container mx-auto px-4 py-8 dark:bg-gray-900">
   <div class="mb-6">
-    <div class="flex gap-4 max-w-xl mx-auto">
-      <input
-        type="text"
-        [(ngModel)]="searchQuery"
-        (keyup.enter)="search()"
-        placeholder="Buscar Pokémon..."
-        class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-      >
+    <div class="flex flex-col gap-4 max-w-xl mx-auto">
+      <div class="flex gap-4">
+        <input
+          type="text"
+          [(ngModel)]="searchQuery"
+          (keyup.enter)="search()"
+          placeholder="Buscar Pokémon..."
+          class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+        <button
+          (click)="search()"
+          class="px-6 py-2 bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg"
+        >
+          Buscar
+        </button>
+      </div>
+
+      <div class="flex gap-4">
+        <select
+          [(ngModel)]="selectedSet"
+          (change)="search()"
+          class="w-1/2 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          <option class="dark:bg-gray-700 dark:text-gray-100" value="">Todos los Sets</option>
+          <option class="dark:bg-gray-700 dark:text-gray-100" *ngFor="let set of sets" [value]="set.id">{{set.name}}</option>
+        </select>
+
+        <select
+          [(ngModel)]="selectedType"
+          (change)="search()"
+          class="w-1/2 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          <option class="dark:bg-gray-700 dark:text-gray-100" value="">Todos los Tipos</option>
+          <option class="dark:bg-gray-700 dark:text-gray-100" *ngFor="let type of types" [value]="type">{{type}}</option>
+        </select>
+      </div>
+
       <button
-        (click)="search()"
-        class="px-6 py-2 bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg"
+        *ngIf="searchQuery || selectedSet || selectedType"
+        (click)="clearFilters()"
+        class="w-full px-4 py-2 bg-gray-500 hover:bg-gray-600 dark:bg-gray-700 dark:hover:bg-gray-600 text-white font-semibold rounded-lg transition-colors duration-200"
       >
-        Buscar
+        Limpiar Filtros
       </button>
     </div>
   </div>
 
-  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+  <div *ngIf="noResults && !loading && !isRestoringPosition"
+       class="text-center py-8">
+    <div class="max-w-md mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+      <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/54.png"
+           alt="No se encontraron resultados"
+           class="w-24 h-24 mx-auto mb-4">
+      <h3 class="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+        No se encontraron resultados
+      </h3>
+      <p class="text-gray-600 dark:text-gray-400 mb-4">
+        Intenta con otros términos de búsqueda o ajusta los filtros
+      </p>
+      <button (click)="clearFilters()"
+              class="px-6 py-2 bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg">
+        Limpiar filtros
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="!noResults || loading || isRestoringPosition"
+       class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
     <div *ngFor="let card of cards"
          class="card bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-200 overflow-hidden cursor-pointer"
          (click)="navigateToCard(card.id)">
@@ -55,7 +105,8 @@
     </ng-container>
   </div>
 
-  <div class="text-center mt-8">
+  <div *ngIf="!noResults && !loading && cards.length > 0"
+       class="text-center mt-8">
     <button (click)="loadMore()"
             class="px-6 py-3 bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg">
       Cargar más

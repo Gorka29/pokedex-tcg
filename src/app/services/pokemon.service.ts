@@ -7,6 +7,8 @@ interface SearchState {
   query: string;
   page: number;
   scrollPosition: number;
+  selectedSet: string;
+  selectedType: string;
 }
 
 @Injectable({
@@ -25,13 +27,14 @@ export class PokemonService {
   ) {}
 
   // Método para guardar el estado
-  saveSearchState(query: string, page: number, scrollPosition: number) {
+  saveSearchState(query: string, page: number, scrollPosition: number, selectedSet: string = '', selectedType: string = '') {
     if (isPlatformBrowser(this.platformId)) {
-      console.log('Guardando estado:', { query, page, scrollPosition });
       const state: SearchState = {
         query,
         page,
-        scrollPosition
+        scrollPosition,
+        selectedSet,
+        selectedType
       };
       localStorage.setItem(this.SEARCH_STATE_KEY, JSON.stringify(state));
     }
@@ -41,21 +44,28 @@ export class PokemonService {
   getSearchState(): SearchState {
     if (isPlatformBrowser(this.platformId)) {
       const state = localStorage.getItem(this.SEARCH_STATE_KEY);
-      const parsedState = state ? JSON.parse(state) : {
+      return state ? JSON.parse(state) : {
         query: '',
         page: 1,
-        scrollPosition: 0
+        scrollPosition: 0,
+        selectedSet: '',
+        selectedType: ''
       };
-      console.log('Recuperando estado:', parsedState);
-      return parsedState;
     }
-    return { query: '', page: 1, scrollPosition: 0 };
+    return { query: '', page: 1, scrollPosition: 0, selectedSet: '', selectedType: '' };
   }
 
-  getCards(page: number = 1, pageSize: number = 16, query: string = ''): Observable<any> {
+  getCards(page: number = 1, pageSize: number = 16, query: string = '', set: string = '', type: string = ''): Observable<any> {
     const headers = { 'X-Api-Key': this.apiKey };
-    const searchQuery = query ? `&q=name:*${query}*` : '';
-    return this.http.get(`${this.apiUrl}/cards?page=${page}&pageSize=${pageSize}${searchQuery}`, { headers });
+    let searchQuery = query ? `name:*${query}*` : '';
+    if (set) {
+      searchQuery += searchQuery ? ` set.id:${set}` : `set.id:${set}`;
+    }
+    if (type) {
+      searchQuery += searchQuery ? ` types:${type}` : `types:${type}`;
+    }
+    const queryParam = searchQuery ? `&q=${searchQuery}` : '';
+    return this.http.get(`${this.apiUrl}/cards?page=${page}&pageSize=${pageSize}${queryParam}`, { headers });
   }
 
   getCardById(id: string): Observable<any> {
@@ -67,5 +77,17 @@ export class PokemonService {
     if (isPlatformBrowser(this.platformId)) {
       localStorage.removeItem(this.SEARCH_STATE_KEY);
     }
+  }
+
+  getSets(): Observable<any> {
+    const headers = { 'X-Api-Key': this.apiKey };
+    return this.http.get(`${this.apiUrl}/sets`, { headers });
+  }
+
+  getTypes(): string[] {
+    return [
+      'Colorless', 'Darkness', 'Dragon', 'Fairy', 'Fighting',
+      'Fire', 'Grass', 'Lightning', 'Metal', 'Psychic', 'Water'
+    ];
   }
 }
