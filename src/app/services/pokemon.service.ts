@@ -1,7 +1,8 @@
 import { Injectable, PLATFORM_ID, Inject } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
 
 interface SearchState {
   query: string;
@@ -84,10 +85,14 @@ export class PokemonService {
     return this.http.get(`${this.apiUrl}/sets`, { headers });
   }
 
-  getTypes(): string[] {
-    return [
-      'Colorless', 'Darkness', 'Dragon', 'Fairy', 'Fighting',
-      'Fire', 'Grass', 'Lightning', 'Metal', 'Psychic', 'Water'
-    ];
+  getTypes(): Observable<string[]> {
+    return this.http.get<any>(`${this.apiUrl}/types`)
+      .pipe(
+        map(response => response.data),
+        catchError(error => {
+          console.error('Error obteniendo tipos:', error);
+          return of([]);
+        })
+      );
   }
 }

@@ -28,11 +28,11 @@ export class CardListComponent implements OnInit {
   constructor(
     private pokemonService: PokemonService,
     private router: Router) {
-    this.types = this.pokemonService.getTypes();
   }
 
   ngOnInit(): void {
     this.loadSets();
+    this.loadTypes();
     const savedState = this.pokemonService.getSearchState();
     this.searchQuery = savedState.query;
     this.currentPage = savedState.page;
@@ -47,6 +47,15 @@ export class CardListComponent implements OnInit {
         this.sets = response.data;
       },
       error: (error) => console.error('Error cargando sets:', error)
+    });
+  }
+
+  loadTypes() {
+    this.pokemonService.getTypes().subscribe({
+      next: (types) => {
+        this.types = types;
+      },
+      error: (error) => console.error('Error cargando tipos:', error)
     });
   }
 
@@ -181,5 +190,23 @@ export class CardListComponent implements OnInit {
     this.currentPage = 1;
     this.pokemonService.saveSearchState('', 1, 0, '', '');
     this.loadCards();
+  }
+
+  getTypeIcon(type: string): string {
+    const typeIcons: { [key: string]: string } = {
+      'Colorless': '⚪',
+      'Darkness': '🌑',
+      'Dragon': '🐉',
+      'Fairy': '🧚',
+      'Fighting': '👊',
+      'Fire': '🔥',
+      'Grass': '🌿',
+      'Lightning': '⚡',
+      'Metal': '⚙️',
+      'Psychic': '🔮',
+      'Water': '💧'
+    };
+
+    return typeIcons[type] || '❓';
   }
 }

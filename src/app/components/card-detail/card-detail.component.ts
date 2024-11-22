@@ -21,9 +21,12 @@ export class CardDetailComponent implements OnInit {
     private route: ActivatedRoute,
     private pokemonService: PokemonService,
     private location: Location
-  ) {}
+  ){}
 
   ngOnInit(): void {
+    // Un solo scrollTo es suficiente
+    window.scrollTo(0, 0);
+
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.pokemonService.getCardById(id).subscribe({

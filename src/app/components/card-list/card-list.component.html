@@ -33,7 +33,13 @@
           class="w-1/2 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
           <option class="dark:bg-gray-700 dark:text-gray-100" value="">Todos los Tipos</option>
-          <option class="dark:bg-gray-700 dark:text-gray-100" *ngFor="let type of types" [value]="type">{{type}}</option>
+          <option
+            class="dark:bg-gray-700 dark:text-gray-100 flex items-center gap-2"
+            *ngFor="let type of types"
+            [value]="type"
+          >
+            {{ getTypeIcon(type) }} {{ type }}
+          </option>
         </select>
       </div>
 
@@ -71,21 +77,33 @@
     <div *ngFor="let card of cards"
          class="card bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-200 overflow-hidden cursor-pointer"
          (click)="navigateToCard(card.id)">
-      <div class="relative">
+      <div class="relative aspect-[2.5/3.5] w-full">
         <img
           appLazyLoad
           [src]="card.images.small"
           [alt]="card.name"
           [ngStyle]="{'view-transition-name': 'card-' + card.id}"
+          class="w-full h-full object-cover"
         />
       </div>
-      <div class="p-4">
-        <h3 class="text-xl font-bold text-gray-900 dark:text-gray-100">{{ card.name }}</h3>
-        <div class="mt-2 flex justify-between items-center">
-          <p class="text-gray-600 dark:text-gray-400">Set: {{ card.set.name }}</p>
-          <p class="text-gray-600 dark:text-gray-400">HP: {{ card.hp }}</p>
+      <div class="p-4 space-y-3">
+        <h3 class="text-xl font-bold text-gray-900 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200">
+          {{ card.name }}
+        </h3>
+        <div class="flex justify-between items-center">
+          <div class="flex items-center space-x-2">
+            <i class="material-icons text-gray-500 dark:text-gray-400 text-md">style</i>
+            <p class="text-gray-600 dark:text-gray-400">{{ card.set.name }}</p>
+          </div>
         </div>
-        <p class="mt-1 text-gray-600 dark:text-gray-400">Tipo: {{ card.types[0] }}</p>
+        <div class="flex items-center space-x-2">
+          <i class="material-icons text-red-500 dark:text-red-400 text-md">favorite</i>
+          <p class="text-gray-600 dark:text-gray-400">{{ card.hp }}</p>
+        </div>
+        <div class="flex items-center space-x-2">
+          <span class="text-md" role="img" aria-label="type">{{ getTypeIcon(card.types[0]) }}</span>
+        <p class="text-gray-600 dark:text-gray-400">{{ card.types[0] }}</p>
+        </div>
       </div>
     </div>
 
