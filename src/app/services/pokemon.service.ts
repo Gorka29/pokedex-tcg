@@ -58,14 +58,18 @@ export class PokemonService {
 
   getCards(page: number = 1, pageSize: number = 16, query: string = '', set: string = '', type: string = ''): Observable<any> {
     const headers = { 'X-Api-Key': this.apiKey };
-    let searchQuery = query ? `name:*${query}*` : '';
+    let searchQuery = '';
+    if (query) {
+      const cleanQuery = query.replace(/"/g, '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      searchQuery = `name:"${cleanQuery}"`;
+    }
     if (set) {
       searchQuery += searchQuery ? ` set.id:${set}` : `set.id:${set}`;
     }
     if (type) {
       searchQuery += searchQuery ? ` types:${type}` : `types:${type}`;
     }
-    const queryParam = searchQuery ? `&q=${searchQuery}` : '';
+    const queryParam = searchQuery ? `&q=${encodeURIComponent(searchQuery)}` : '';
     return this.http.get(`${this.apiUrl}/cards?page=${page}&pageSize=${pageSize}${queryParam}`, { headers });
   }
 

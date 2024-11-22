@@ -24,6 +24,8 @@ export class CardListComponent implements OnInit {
   selectedSet: string = '';
   selectedType: string = '';
   noResults = false;
+  suggestions: string[] = [];
+  showSuggestions = false;
 
   constructor(
     private pokemonService: PokemonService,
@@ -116,7 +118,7 @@ export class CardListComponent implements OnInit {
       this.pokemonService.getCards(
         this.currentPage,
         16,
-        this.searchQuery,
+        encodeURIComponent(this.searchQuery),
         this.selectedSet,
         this.selectedType
       ).subscribe({
@@ -208,5 +210,38 @@ export class CardListComponent implements OnInit {
     };
 
     return typeIcons[type] || '❓';
+  }
+
+  onSearchInput(event: any): void {
+    const query = event.target.value;
+    if (query.length >= 1) {
+      this.pokemonService.getCards(1, 8, query).subscribe({
+        next: (response: { data: Array<{ name: string }> }) => {
+          this.suggestions = [...new Set(
+            response.data
+              .map(card => card.name)
+              .filter(name =>
+                name.toLowerCase().includes(query.toLowerCase()) ||
+                name.toLowerCase().startsWith(query.toLowerCase())
+              )
+          )].slice(0, 6);
+          this.showSuggestions = this.suggestions.length > 0;
+        },
+        error: (error) => {
+          console.error('Error en autocompletado:', error);
+          this.suggestions = [];
+          this.showSuggestions = false;
+        }
+      });
+    } else {
+      this.suggestions = [];
+      this.showSuggestions = false;
+    }
+  }
+
+  selectSuggestion(suggestion: string): void {
+    this.searchQuery = suggestion;
+    this.showSuggestions = false;
+    this.search();
   }
 }
