@@ -23,3 +23,12 @@
     background-color: rgb(31, 41, 55); /* dark:bg-gray-800 */
   }
 }
+
+img {
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+img[src^="http"] {
+  opacity: 1;
+}

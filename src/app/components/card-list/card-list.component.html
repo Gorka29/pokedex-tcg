@@ -67,15 +67,17 @@
   </div>
 
   <div *ngIf="!noResults || loading || isRestoringPosition"
-       class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+       class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
     <div *ngFor="let card of cards"
          class="card bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-200 overflow-hidden cursor-pointer"
          (click)="navigateToCard(card.id)">
       <div class="relative">
-        <img [src]="card.images.large"
-             [alt]="card.name"
-             [ngStyle]="{'view-transition-name': 'card-' + card.id}"
-             class="w-full h-auto object-contain">
+        <img
+          appLazyLoad
+          [src]="card.images.small"
+          [alt]="card.name"
+          [ngStyle]="{'view-transition-name': 'card-' + card.id}"
+        />
       </div>
       <div class="p-4">
         <h3 class="text-xl font-bold text-gray-900 dark:text-gray-100">{{ card.name }}</h3>
