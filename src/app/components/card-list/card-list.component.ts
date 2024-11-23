@@ -34,6 +34,7 @@ export class CardListComponent implements OnInit {
   hpRangeError: string = '';
   showOnlyFavorites: boolean = false;
   hpMinOptions: number[] = [];
+  totalCount: number = 0;
 
   constructor(
     private pokemonService: PokemonService,
@@ -107,11 +108,12 @@ export class CardListComponent implements OnInit {
           } else {
             this.cards = [...this.cards, ...response.data];
           }
+          this.totalCount = response.totalCount;
           this.loading = false;
           resolve();
         },
         error: (error) => {
-          console.error('Error:', error);
+          console.error('Error loading cards:', error);
           this.loading = false;
           this.noResults = true;
           resolve();
@@ -261,5 +263,9 @@ export class CardListComponent implements OnInit {
     for (let i = 0; i <= 300; i += 10) {
       this.hpMinOptions.push(i);
     }
+  }
+
+  hasMoreResults(): boolean {
+    return this.cards.length < this.totalCount;
   }
 }

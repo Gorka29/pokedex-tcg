@@ -186,11 +186,15 @@
     </ng-container>
   </div>
 
-  <div *ngIf="!noResults && !loading && cards.length > 0"
-       class="text-center mt-8">
-    <button (click)="loadMore()"
-            class="px-6 py-3 bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg">
-      Cargar más
+  <div class="flex justify-center mt-4 mb-8">
+    <button
+      *ngIf="hasMoreResults()"
+      (click)="loadMore()"
+      class="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 dark:bg-blue-600 dark:hover:bg-blue-700"
+      [disabled]="loading"
+    >
+      <span *ngIf="!loading">Cargar más</span>
+      <span *ngIf="loading">Cargando...</span>
     </button>
   </div>
 </div>
