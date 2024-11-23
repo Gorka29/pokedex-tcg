@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PokemonService } from '../../services/pokemon.service';
 import { RouterModule, Router, RouterLink } from '@angular/router';
+import { FavoritesService } from '../../services/favorites.service';
 
 @Component({
   selector: 'app-card-list',
@@ -32,9 +33,11 @@ export class CardListComponent implements OnInit {
   };
   rarities: string[] = [];
   hpRangeError: string = '';
+  showOnlyFavorites: boolean = false;
 
   constructor(
     private pokemonService: PokemonService,
+    private favoritesService: FavoritesService,
     private router: Router) {
   }
 
@@ -241,5 +244,28 @@ export class CardListComponent implements OnInit {
     this.searchQuery = suggestion;
     this.showSuggestions = false;
     this.search();
+  }
+
+  toggleFavorite(event: Event, cardId: string): void {
+    event.stopPropagation(); // Evitar navegación a la carta
+    if (this.favoritesService.isFavorite(cardId)) {
+      this.favoritesService.removeFromFavorites(cardId);
+    } else {
+      this.favoritesService.addToFavorites(cardId);
+    }
+  }
+
+  isFavorite(cardId: string): boolean {
+    return this.favoritesService.isFavorite(cardId);
+  }
+
+  toggleFavoritesFilter(): void {
+    this.showOnlyFavorites = !this.showOnlyFavorites;
+    if (this.showOnlyFavorites) {
+      const favorites = this.favoritesService.getFavorites();
+      this.cards = this.cards.filter(card => favorites.includes(card.id));
+    } else {
+      this.loadCards();
+    }
   }
 }

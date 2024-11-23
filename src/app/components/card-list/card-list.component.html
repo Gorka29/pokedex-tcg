@@ -20,12 +20,21 @@
             </div>
           </div>
         </div>
-        <button
-          (click)="search()"
-          class="px-6 py-2 bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg"
-        >
-          Buscar
-        </button>
+        <div class="flex gap-4">
+          <button
+            (click)="search()"
+            class="w-3/4 px-6 py-2 bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg"
+          >
+            Buscar
+          </button>
+          <button
+            (click)="toggleFavoritesFilter()"
+            [class.bg-yellow-500]="showOnlyFavorites"
+            class="w-1/4 px-4 py-2 bg-gray-500 hover:bg-gray-600 dark:bg-gray-700 dark:hover:bg-gray-600 text-white font-semibold rounded-lg transition-colors duration-200"
+          >
+            <i class="material-icons">{{ showOnlyFavorites ? 'star' : 'star_border' }}</i>
+          </button>
+        </div>
       </div>
 
       <div class="flex gap-4">
@@ -146,7 +155,6 @@
         </h3>
         <div class="flex justify-between items-center">
           <div class="flex items-center space-x-2">
-            <!-- <i class="material-icons text-gray-500 dark:text-gray-400 text-md">style</i> -->
             <p class="text-gray-600 dark:text-gray-400">{{ card.set.name }}</p>
           </div>
         </div>
@@ -154,9 +162,19 @@
           <span class="text-md" role="img" aria-label="type">{{ getTypeIcon(card.types?.[0] || 'Unknown') }}</span>
           <p class="text-gray-600 dark:text-gray-400">{{ card.types?.[0] || 'Sin tipo' }}</p>
         </div>
-        <div class="flex items-center space-x-2">
-          <i class="material-icons text-red-500 dark:text-red-400 text-md">favorite</i>
-          <p class="text-gray-600 dark:text-gray-400">{{ card.hp }}</p>
+        <div class="flex justify-between items-center">
+          <div class="flex items-center space-x-2">
+            <i class="material-icons text-red-500 dark:text-red-400 text-md">favorite</i>
+            <p class="text-gray-600 dark:text-gray-400">{{ card.hp }}</p>
+          </div>
+          <button
+            (click)="toggleFavorite($event, card.id)"
+            class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
+          >
+            <i class="material-icons text-yellow-500">
+              {{ isFavorite(card.id) ? 'star' : 'star_border' }}
+            </i>
+          </button>
         </div>
       </div>
     </div>
