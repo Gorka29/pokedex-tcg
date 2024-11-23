@@ -25,6 +25,13 @@ export class CardListComponent implements OnInit {
   noResults = false;
   suggestions: string[] = [];
   showSuggestions = false;
+  selectedRarity: string = '';
+  hpRange: { min: number; max: number } = {
+    min: 0,
+    max: 0
+  };
+  rarities: string[] = [];
+  hpRangeError: string = '';
 
   constructor(
     private pokemonService: PokemonService,
@@ -34,11 +41,14 @@ export class CardListComponent implements OnInit {
   ngOnInit(): void {
     this.loadSets();
     this.loadTypes();
+    this.loadRarities();
     const savedState = this.pokemonService.getSearchState();
     this.searchQuery = savedState.query;
     this.currentPage = savedState.page;
     this.selectedSet = savedState.selectedSet;
     this.selectedType = savedState.selectedType;
+    this.selectedRarity = savedState.selectedRarity;
+    this.hpRange = savedState.hpRange || { min: 0, max: 0 };
     this.loadCards();
   }
 
@@ -60,6 +70,15 @@ export class CardListComponent implements OnInit {
     });
   }
 
+  loadRarities() {
+    this.pokemonService.getRarities().subscribe({
+      next: (rarities) => {
+        this.rarities = rarities;
+      },
+      error: (error) => console.error('Error cargando rarezas:', error)
+    });
+  }
+
   loadCards() {
     this.loading = true;
     this.noResults = false;
@@ -69,7 +88,9 @@ export class CardListComponent implements OnInit {
         16,
         encodeURIComponent(this.searchQuery),
         this.selectedSet,
-        this.selectedType
+        this.selectedType,
+        this.selectedRarity,
+        this.hpRange
       ).subscribe({
         next: (response) => {
           if (this.currentPage === 1) {
@@ -97,7 +118,9 @@ export class CardListComponent implements OnInit {
       this.searchQuery,
       this.currentPage,
       this.selectedSet,
-      this.selectedType
+      this.selectedType,
+      this.selectedRarity,
+      this.hpRange
     );
     this.loadCards();
   }
@@ -107,19 +130,47 @@ export class CardListComponent implements OnInit {
       this.searchQuery,
       this.currentPage,
       this.selectedSet,
-      this.selectedType
+      this.selectedType,
+      this.selectedRarity,
+      this.hpRange
     );
     this.router.navigate(['/card', cardId]);
   }
 
+  validateHpRange(): boolean {
+    this.hpRangeError = '';
+
+    const min = Number(this.hpRange.min);
+    const max = Number(this.hpRange.max);
+
+    if (!min && !max) return true;
+
+    if (!min && max > 0) return true;
+
+    if (min > 0 && !max) return true;
+
+    if (min > 0 && max > 0 && min > max) {
+      this.hpRangeError = 'El HP máximo debe ser mayor que el HP mínimo';
+      return false;
+    }
+
+    return true;
+  }
+
   search(): void {
+    if (!this.validateHpRange()) {
+      return;
+    }
+
     this.currentPage = 1;
     this.cards = [];
     this.pokemonService.saveSearchState(
       this.searchQuery,
       this.currentPage,
       this.selectedSet,
-      this.selectedType
+      this.selectedType,
+      this.selectedRarity,
+      this.hpRange
     );
     this.loadCards();
   }
@@ -128,8 +179,10 @@ export class CardListComponent implements OnInit {
     this.searchQuery = '';
     this.selectedSet = '';
     this.selectedType = '';
+    this.selectedRarity = '';
+    this.hpRange = { min: 0, max: 0 };
     this.currentPage = 1;
-    this.pokemonService.saveSearchState('', 1, '', '');
+    this.pokemonService.clearSearchState();
     this.loadCards();
   }
 

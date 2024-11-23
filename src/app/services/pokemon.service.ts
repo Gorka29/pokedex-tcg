@@ -9,6 +9,11 @@ interface SearchState {
   page: number;
   selectedSet: string;
   selectedType: string;
+  selectedRarity: string;
+  hpRange: {
+    min: number;
+    max: number;
+  };
 }
 
 @Injectable({
@@ -27,13 +32,22 @@ export class PokemonService {
   ) {}
 
   // Método para guardar el estado
-  saveSearchState(query: string, page: number, selectedSet: string = '', selectedType: string = '') {
+  saveSearchState(
+    query: string,
+    page: number,
+    selectedSet: string = '',
+    selectedType: string = '',
+    selectedRarity: string = '',
+    hpRange = { min: 0, max: 0 }
+  ) {
     if (isPlatformBrowser(this.platformId)) {
       const state: SearchState = {
         query,
         page,
         selectedSet,
-        selectedType
+        selectedType,
+        selectedRarity,
+        hpRange
       };
       localStorage.setItem(this.SEARCH_STATE_KEY, JSON.stringify(state));
     }
@@ -47,15 +61,33 @@ export class PokemonService {
         query: '',
         page: 1,
         selectedSet: '',
-        selectedType: ''
+        selectedType: '',
+        selectedRarity: '',
+        hpRange: { min: 0, max: 0 }
       };
     }
-    return { query: '', page: 1, selectedSet: '', selectedType: '' };
+    return {
+      query: '',
+      page: 1,
+      selectedSet: '',
+      selectedType: '',
+      selectedRarity: '',
+      hpRange: { min: 0, max: 0 }
+    };
   }
 
-  getCards(page: number = 1, pageSize: number = 16, query: string = '', set: string = '', type: string = ''): Observable<any> {
+  getCards(
+    page: number = 1,
+    pageSize: number = 16,
+    query: string = '',
+    set: string = '',
+    type: string = '',
+    rarity: string = '',
+    hpRange = { min: 0, max: 0 }
+  ): Observable<any> {
     const headers = { 'X-Api-Key': this.apiKey };
     let searchQuery = '';
+
     if (query) {
       const cleanQuery = query.replace(/"/g, '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       searchQuery = `name:"${cleanQuery}"`;
@@ -66,6 +98,24 @@ export class PokemonService {
     if (type) {
       searchQuery += searchQuery ? ` types:${type}` : `types:${type}`;
     }
+    if (rarity) {
+      searchQuery += searchQuery ? ` rarity:"${rarity}"` : `rarity:"${rarity}"`;
+    }
+    if (hpRange.min > 0 || hpRange.max > 0) {
+      let hpQuery = '';
+      if (hpRange.min > 0 && hpRange.max > 0) {
+        hpQuery = `hp:[${hpRange.min} TO ${hpRange.max}]`;
+      } else if (hpRange.min > 0) {
+        hpQuery = `hp:>=${hpRange.min}`;
+      } else if (hpRange.max > 0) {
+        hpQuery = `hp:<=${hpRange.max}`;
+      }
+
+      if (hpQuery) {
+        searchQuery += searchQuery ? ` ${hpQuery}` : hpQuery;
+      }
+    }
+
     const queryParam = searchQuery ? `&q=${encodeURIComponent(searchQuery)}` : '';
     return this.http.get(`${this.apiUrl}/cards?page=${page}&pageSize=${pageSize}${queryParam}`, { headers });
   }
@@ -106,5 +156,17 @@ export class PokemonService {
       `${this.apiUrl}/cards?q=${encodeURIComponent(searchQuery)}&page=1&pageSize=20&select=name`,
       { headers }
     );
+  }
+
+  getRarities(): Observable<string[]> {
+    const headers = { 'X-Api-Key': this.apiKey };
+    return this.http.get<any>(`${this.apiUrl}/rarities`, { headers })
+      .pipe(
+        map(response => response.data),
+        catchError(error => {
+          console.error('Error obteniendo rarezas:', error);
+          return of([]);
+        })
+      );
   }
 }
