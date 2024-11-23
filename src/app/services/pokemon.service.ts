@@ -76,6 +76,17 @@ export class PokemonService {
     };
   }
 
+  // Este método construye y ejecuta la consulta a la API de cartas Pokemon
+  // La query se forma concatenando diferentes criterios de búsqueda:
+
+  // 1. Parámetros base:
+  // - page: número de página para paginación
+  // - pageSize: cantidad de resultados por página
+  // - query: término de búsqueda por nombre
+  // - set: filtro por set/colección
+  // - type: filtro por tipo de Pokemon
+  // - rarity: filtro por rareza
+  // - hpRange: rango de HP (min y max)
   getCards(
     page: number = 1,
     pageSize: number = 16,
@@ -88,34 +99,63 @@ export class PokemonService {
     const headers = { 'X-Api-Key': this.apiKey };
     let searchQuery = '';
 
+    // 2. Búsqueda por nombre:
+    // Si hay query, limpia caracteres especiales y agrega criterio name:"termino"
     if (query) {
       const cleanQuery = query.replace(/"/g, '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       searchQuery = `name:"${cleanQuery}"`;
     }
+
+    // 3. Filtro por set:
+    // Agrega set.id:idSet al query existente o lo inicia
     if (set) {
       searchQuery += searchQuery ? ` set.id:${set}` : `set.id:${set}`;
     }
+
+    // 4. Filtro por tipo:
+    // Agrega types:tipo al query existente o lo inicia
     if (type) {
       searchQuery += searchQuery ? ` types:${type}` : `types:${type}`;
     }
+
+    // 5. Filtro por rareza:
+    // Agrega rarity:"rareza" al query existente o lo inicia
     if (rarity) {
       searchQuery += searchQuery ? ` rarity:"${rarity}"` : `rarity:"${rarity}"`;
     }
+
+    // 6. Filtro por rango de HP (Hit Points):
+    // Agrega filtros de HP según los valores min/max proporcionados
+    // Este bloque maneja 3 casos diferentes:
+    // 1. Cuando hay min y max: busca cartas con HP entre esos valores usando sintaxis [min TO max]
+    // 2. Cuando solo hay min: busca cartas con HP mayor o igual al mínimo usando >=
+    // 3. Cuando solo hay max: busca cartas con HP menor o igual al máximo usando <=
     if (hpRange.min > 0 || hpRange.max > 0) {
       let hpQuery = '';
       if (hpRange.min > 0 && hpRange.max > 0) {
+        // Caso 1: Rango completo con mínimo y máximo
+        // Ejemplo: hp:[50 TO 100] buscará cartas con HP entre 50 y 100
         hpQuery = `hp:[${hpRange.min} TO ${hpRange.max}]`;
       } else if (hpRange.min > 0) {
+        // Caso 2: Solo valor mínimo
+        // Ejemplo: hp:>=50 buscará cartas con HP de 50 o más
         hpQuery = `hp:>=${hpRange.min}`;
       } else if (hpRange.max > 0) {
+        // Caso 3: Solo valor máximo
+        // Ejemplo: hp:<=100 buscará cartas con HP de 100 o menos
         hpQuery = `hp:<=${hpRange.max}`;
       }
 
+      // Si se generó un query de HP, lo añade a la búsqueda general
+      // Si ya existe una búsqueda previa, añade el HP con espacio
+      // Si no hay búsqueda previa, el HP será el primer criterio
       if (hpQuery) {
         searchQuery += searchQuery ? ` ${hpQuery}` : hpQuery;
       }
     }
 
+    // 7. Construcción URL final:
+    // Codifica el query y lo agrega a la URL base con los parámetros de paginación
     const queryParam = searchQuery ? `&q=${encodeURIComponent(searchQuery)}` : '';
     return this.http.get(`${this.apiUrl}/cards?page=${page}&pageSize=${pageSize}${queryParam}`, { headers });
   }

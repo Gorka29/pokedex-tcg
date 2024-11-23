@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { PokemonService } from '../../services/pokemon.service';
 import { ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { Location } from '@angular/common';
+import { DOCUMENT } from '@angular/common';
 
 @Component({
   selector: 'app-card-detail',
@@ -17,6 +18,8 @@ export class CardDetailComponent implements OnInit {
   loading = true;
   error = false;
 
+  private document = inject(DOCUMENT);
+
   constructor(
     private route: ActivatedRoute,
     private pokemonService: PokemonService,
@@ -24,8 +27,9 @@ export class CardDetailComponent implements OnInit {
   ){}
 
   ngOnInit(): void {
-    // Un solo scrollTo es suficiente
-    window.scrollTo(0, 0);
+    if (typeof window !== 'undefined') {
+      window.scrollTo(0, 0);
+    }
 
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {

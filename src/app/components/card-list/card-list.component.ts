@@ -190,10 +190,11 @@ export class CardListComponent implements OnInit {
     this.selectedSet = '';
     this.selectedType = '';
     this.selectedRarity = '';
-    this.hpRange = { min: 0, max: 0 };
+    this.hpRange.min = 0;
+    this.hpRange.max = 300;
     this.currentPage = 1;
     this.pokemonService.clearSearchState();
-    this.loadCards();
+    window.location.reload();
   }
 
   getTypeIcon(type: string): string {
@@ -291,15 +292,29 @@ export class CardListComponent implements OnInit {
     this.search();
   }
 
+  // Esta función actualiza las opciones disponibles para el HP máximo basado en el HP mínimo seleccionado
   updateHpMaxOptions() {
+    // Convierte el HP mínimo a número entero, si no existe usa 0 como valor por defecto
     const minHp = this.hpRange.min ? parseInt(this.hpRange.min.toString()) : 0;
+
+    // Reinicia el array de opciones de HP máximo
     this.hpMaxOptions = [];
+
+    // Genera opciones desde el HP mínimo hasta 300, incrementando de 10 en 10
+    // Esto asegura que el máximo siempre sea mayor o igual al mínimo
     for (let i = minHp; i <= 300; i += 10) {
       this.hpMaxOptions.push(i);
     }
 
+    // Si existe un HP máximo seleccionado y es menor que el mínimo,
+    // ajusta el máximo para que sea igual al mínimo para evitar rangos inválidos
     if (this.hpRange.max && parseInt(this.hpRange.max.toString()) < minHp) {
       this.hpRange.max = minHp;
+    }
+
+    // Establece 300 como valor por defecto para HP máximo si no hay un valor seleccionado
+    if (!this.hpRange.max) {
+      this.hpRange.max = 300;
     }
   }
 }
