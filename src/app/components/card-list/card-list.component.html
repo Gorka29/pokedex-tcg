@@ -81,24 +81,22 @@
 
         <div class="w-1/2 flex flex-col gap-2">
           <div class="flex gap-2">
-            <input
-              type="number"
+            <select
               [(ngModel)]="hpRange.min"
-              (change)="search()"
-              placeholder="HP Min"
-              min="0"
-              max="999"
+              (change)="onHpMinChange()"
               class="w-1/2 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-            <input
-              type="number"
+              <option value="">HP Min</option>
+              <option *ngFor="let hp of hpMinOptions" [value]="hp">{{hp}}</option>
+            </select>
+            <select
               [(ngModel)]="hpRange.max"
               (change)="search()"
-              placeholder="HP Max"
-              min="0"
-              max="999"
               class="w-1/2 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
+              <option value="">HP Max</option>
+              <option *ngFor="let hp of hpMaxOptions" [value]="hp">{{hp}}</option>
+            </select>
           </div>
           <div *ngIf="hpRangeError" class="text-red-500 text-sm">
             {{ hpRangeError }}

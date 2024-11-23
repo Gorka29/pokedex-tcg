@@ -34,25 +34,32 @@ export class CardListComponent implements OnInit {
   rarities: string[] = [];
   hpRangeError: string = '';
   showOnlyFavorites: boolean = false;
+  hpMinOptions: number[] = [];
+  hpMaxOptions: number[] = [];
 
   constructor(
     private pokemonService: PokemonService,
     private favoritesService: FavoritesService,
-    private router: Router) {
+    private router: Router,
+    @Inject(PLATFORM_ID) private platformId: Object
+  ) {
   }
 
   ngOnInit(): void {
-    this.loadSets();
-    this.loadTypes();
-    this.loadRarities();
-    const savedState = this.pokemonService.getSearchState();
-    this.searchQuery = savedState.query;
-    this.currentPage = savedState.page;
-    this.selectedSet = savedState.selectedSet;
-    this.selectedType = savedState.selectedType;
-    this.selectedRarity = savedState.selectedRarity;
-    this.hpRange = savedState.hpRange || { min: 0, max: 0 };
-    this.loadCards();
+    if (isPlatformBrowser(this.platformId)) {
+      this.loadSets();
+      this.loadTypes();
+      this.loadRarities();
+      const savedState = this.pokemonService.getSearchState();
+      this.searchQuery = savedState.query;
+      this.currentPage = savedState.page;
+      this.selectedSet = savedState.selectedSet;
+      this.selectedType = savedState.selectedType;
+      this.selectedRarity = savedState.selectedRarity;
+      this.hpRange = savedState.hpRange || { min: 0, max: 0 };
+      this.loadCards();
+      this.generateHpOptions();
+    }
   }
 
   loadSets() {
@@ -256,7 +263,10 @@ export class CardListComponent implements OnInit {
   }
 
   isFavorite(cardId: string): boolean {
-    return this.favoritesService.isFavorite(cardId);
+    if (isPlatformBrowser(this.platformId)) {
+      return this.favoritesService.isFavorite(cardId);
+    }
+    return false;
   }
 
   toggleFavoritesFilter(): void {
@@ -266,6 +276,30 @@ export class CardListComponent implements OnInit {
       this.cards = this.cards.filter(card => favorites.includes(card.id));
     } else {
       this.loadCards();
+    }
+  }
+
+  generateHpOptions() {
+    for (let i = 0; i <= 300; i += 10) {
+      this.hpMinOptions.push(i);
+    }
+    this.updateHpMaxOptions();
+  }
+
+  onHpMinChange() {
+    this.updateHpMaxOptions();
+    this.search();
+  }
+
+  updateHpMaxOptions() {
+    const minHp = this.hpRange.min ? parseInt(this.hpRange.min.toString()) : 0;
+    this.hpMaxOptions = [];
+    for (let i = minHp; i <= 300; i += 10) {
+      this.hpMaxOptions.push(i);
+    }
+
+    if (this.hpRange.max && parseInt(this.hpRange.max.toString()) < minHp) {
+      this.hpRange.max = minHp;
     }
   }
 }
