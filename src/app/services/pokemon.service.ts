@@ -96,4 +96,15 @@ export class PokemonService {
         })
       );
   }
+
+  getSuggestions(query: string): Observable<any> {
+    const headers = { 'X-Api-Key': this.apiKey };
+    const cleanQuery = query.replace(/"/g, '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    // Usamos una búsqueda más flexible y aumentamos el pageSize para mejores resultados
+    const searchQuery = `name:"*${cleanQuery}*"`;
+    return this.http.get(
+      `${this.apiUrl}/cards?q=${encodeURIComponent(searchQuery)}&page=1&pageSize=20&select=name`,
+      { headers }
+    );
+  }
 }

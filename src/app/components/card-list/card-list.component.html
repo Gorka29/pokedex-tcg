@@ -103,17 +103,17 @@
         </h3>
         <div class="flex justify-between items-center">
           <div class="flex items-center space-x-2">
-            <i class="material-icons text-gray-500 dark:text-gray-400 text-md">style</i>
+            <!-- <i class="material-icons text-gray-500 dark:text-gray-400 text-md">style</i> -->
             <p class="text-gray-600 dark:text-gray-400">{{ card.set.name }}</p>
           </div>
         </div>
         <div class="flex items-center space-x-2">
-          <i class="material-icons text-red-500 dark:text-red-400 text-md">favorite</i>
-          <p class="text-gray-600 dark:text-gray-400">{{ card.hp }}</p>
+          <span class="text-md" role="img" aria-label="type">{{ getTypeIcon(card.types[0]) }}</span>
+          <p class="text-gray-600 dark:text-gray-400">{{ card.types[0] }}</p>
         </div>
         <div class="flex items-center space-x-2">
-          <span class="text-md" role="img" aria-label="type">{{ getTypeIcon(card.types[0]) }}</span>
-        <p class="text-gray-600 dark:text-gray-400">{{ card.types[0] }}</p>
+          <i class="material-icons text-red-500 dark:text-red-400 text-md">favorite</i>
+          <p class="text-gray-600 dark:text-gray-400">{{ card.hp }}</p>
         </div>
       </div>
     </div>

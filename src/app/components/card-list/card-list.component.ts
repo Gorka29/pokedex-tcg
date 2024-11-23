@@ -152,18 +152,24 @@ export class CardListComponent implements OnInit {
   }
 
   onSearchInput(event: any): void {
-    const query = event.target.value;
-    if (query.length >= 1) {
-      this.pokemonService.getCards(1, 8, query).subscribe({
+    const query = event.target.value.trim();
+    if (query.length >= 2) {
+      this.pokemonService.getSuggestions(query).subscribe({
         next: (response: { data: Array<{ name: string }> }) => {
           this.suggestions = [...new Set(
             response.data
               .map(card => card.name)
-              .filter(name =>
-                name.toLowerCase().includes(query.toLowerCase()) ||
-                name.toLowerCase().startsWith(query.toLowerCase())
-              )
-          )].slice(0, 6);
+              .filter(name => {
+                const normalizedName = name.toLowerCase();
+                const normalizedQuery = query.toLowerCase();
+                return normalizedName.includes(normalizedQuery);
+              })
+              .sort((a, b) => {
+                const startsWithQuery = (name: string) =>
+                  name.toLowerCase().startsWith(query.toLowerCase());
+                return startsWithQuery(b) ? 1 : startsWithQuery(a) ? -1 : 0;
+              })
+          )].slice(0, 8);
           this.showSuggestions = this.suggestions.length > 0;
         },
         error: (error) => {
