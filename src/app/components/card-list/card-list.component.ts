@@ -27,15 +27,13 @@ export class CardListComponent implements OnInit {
   suggestions: string[] = [];
   showSuggestions = false;
   selectedRarity: string = '';
-  hpRange: { min: number; max: number } = {
-    min: 0,
-    max: 0
+  hpRange: { min: number } = {
+    min: 0
   };
   rarities: string[] = [];
   hpRangeError: string = '';
   showOnlyFavorites: boolean = false;
   hpMinOptions: number[] = [];
-  hpMaxOptions: number[] = [];
 
   constructor(
     private pokemonService: PokemonService,
@@ -56,7 +54,7 @@ export class CardListComponent implements OnInit {
       this.selectedSet = savedState.selectedSet;
       this.selectedType = savedState.selectedType;
       this.selectedRarity = savedState.selectedRarity;
-      this.hpRange = savedState.hpRange || { min: 0, max: 0 };
+      this.hpRange = savedState.hpRange || { min: 0 };
       this.loadCards();
       this.generateHpOptions();
     }
@@ -148,30 +146,10 @@ export class CardListComponent implements OnInit {
   }
 
   validateHpRange(): boolean {
-    this.hpRangeError = '';
-
-    const min = Number(this.hpRange.min);
-    const max = Number(this.hpRange.max);
-
-    if (!min && !max) return true;
-
-    if (!min && max > 0) return true;
-
-    if (min > 0 && !max) return true;
-
-    if (min > 0 && max > 0 && min > max) {
-      this.hpRangeError = 'El HP máximo debe ser mayor que el HP mínimo';
-      return false;
-    }
-
     return true;
   }
 
   search(): void {
-    if (!this.validateHpRange()) {
-      return;
-    }
-
     this.currentPage = 1;
     this.cards = [];
     this.pokemonService.saveSearchState(
@@ -191,7 +169,6 @@ export class CardListComponent implements OnInit {
     this.selectedType = '';
     this.selectedRarity = '';
     this.hpRange.min = 0;
-    this.hpRange.max = 300;
     this.currentPage = 1;
     this.pokemonService.clearSearchState();
     window.location.reload();
@@ -283,38 +260,6 @@ export class CardListComponent implements OnInit {
   generateHpOptions() {
     for (let i = 0; i <= 300; i += 10) {
       this.hpMinOptions.push(i);
-    }
-    this.updateHpMaxOptions();
-  }
-
-  onHpMinChange() {
-    this.updateHpMaxOptions();
-    this.search();
-  }
-
-  // Esta función actualiza las opciones disponibles para el HP máximo basado en el HP mínimo seleccionado
-  updateHpMaxOptions() {
-    // Convierte el HP mínimo a número entero, si no existe usa 0 como valor por defecto
-    const minHp = this.hpRange.min ? parseInt(this.hpRange.min.toString()) : 0;
-
-    // Reinicia el array de opciones de HP máximo
-    this.hpMaxOptions = [];
-
-    // Genera opciones desde el HP mínimo hasta 300, incrementando de 10 en 10
-    // Esto asegura que el máximo siempre sea mayor o igual al mínimo
-    for (let i = minHp; i <= 300; i += 10) {
-      this.hpMaxOptions.push(i);
-    }
-
-    // Si existe un HP máximo seleccionado y es menor que el mínimo,
-    // ajusta el máximo para que sea igual al mínimo para evitar rangos inválidos
-    if (this.hpRange.max && parseInt(this.hpRange.max.toString()) < minHp) {
-      this.hpRange.max = minHp;
-    }
-
-    // Establece 300 como valor por defecto para HP máximo si no hay un valor seleccionado
-    if (!this.hpRange.max) {
-      this.hpRange.max = 300;
     }
   }
 }
