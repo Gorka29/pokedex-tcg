@@ -18,7 +18,6 @@ export class CardListComponent implements OnInit {
   cards: any[] = [];
   currentPage: number = 1;
   searchQuery: string = '';
-  isRestoringPosition = false;
   sets: any[] = [];
   types: string[] = [];
   selectedSet: string = '';
@@ -40,7 +39,7 @@ export class CardListComponent implements OnInit {
     this.currentPage = savedState.page;
     this.selectedSet = savedState.selectedSet;
     this.selectedType = savedState.selectedType;
-    this.loadAllPages(savedState.page, savedState.scrollPosition);
+    this.loadCards();
   }
 
   loadSets() {
@@ -59,56 +58,6 @@ export class CardListComponent implements OnInit {
       },
       error: (error) => console.error('Error cargando tipos:', error)
     });
-  }
-
-  async loadAllPages(targetPage: number, savedScrollPosition: number) {
-    this.loading = true;
-    this.isRestoringPosition = true;
-
-    for (let page = 1; page <= targetPage; page++) {
-      await new Promise<void>((resolve) => {
-        this.pokemonService.getCards(page, 16, this.searchQuery, this.selectedSet, this.selectedType).subscribe({
-          next: (response) => {
-            if (page === 1) {
-              this.cards = response.data;
-            } else {
-              this.cards = [...this.cards, ...response.data];
-            }
-            resolve();
-          },
-          error: (error) => {
-            console.error('Error:', error);
-            resolve();
-          }
-        });
-      });
-    }
-
-    if (savedScrollPosition) {
-      const checkAndScroll = () => {
-        window.scrollTo({
-          top: savedScrollPosition,
-          behavior: 'auto'
-        });
-      };
-
-      setTimeout(checkAndScroll, 100);
-      setTimeout(checkAndScroll, 500);
-      setTimeout(checkAndScroll, 1000);
-      setTimeout(checkAndScroll, 1500);
-      setTimeout(checkAndScroll, 2000);
-
-      setTimeout(() => {
-        checkAndScroll();
-        setTimeout(() => {
-          this.isRestoringPosition = false;
-          this.loading = false;
-        }, 500);
-      }, 2500);
-    } else {
-      this.isRestoringPosition = false;
-      this.loading = false;
-    }
   }
 
   loadCards() {
@@ -130,9 +79,7 @@ export class CardListComponent implements OnInit {
             this.cards = [...this.cards, ...response.data];
           }
           this.loading = false;
-          setTimeout(() => {
-            resolve();
-          }, 100);
+          resolve();
         },
         error: (error) => {
           console.error('Error:', error);
@@ -146,11 +93,9 @@ export class CardListComponent implements OnInit {
 
   loadMore(): void {
     this.currentPage++;
-    const scrollPosition = window.scrollY || window.pageYOffset || document.documentElement.scrollTop;
     this.pokemonService.saveSearchState(
       this.searchQuery,
       this.currentPage,
-      scrollPosition,
       this.selectedSet,
       this.selectedType
     );
@@ -158,14 +103,9 @@ export class CardListComponent implements OnInit {
   }
 
   navigateToCard(cardId: string) {
-    // Capturar la posición del scroll antes de navegar
-    const scrollPosition = window.scrollY || window.pageYOffset || document.documentElement.scrollTop;
-    console.log('Guardando posición del scroll:', scrollPosition);
-
     this.pokemonService.saveSearchState(
       this.searchQuery,
       this.currentPage,
-      scrollPosition,
       this.selectedSet,
       this.selectedType
     );
@@ -178,7 +118,6 @@ export class CardListComponent implements OnInit {
     this.pokemonService.saveSearchState(
       this.searchQuery,
       this.currentPage,
-      0,
       this.selectedSet,
       this.selectedType
     );
@@ -190,7 +129,7 @@ export class CardListComponent implements OnInit {
     this.selectedSet = '';
     this.selectedType = '';
     this.currentPage = 1;
-    this.pokemonService.saveSearchState('', 1, 0, '', '');
+    this.pokemonService.saveSearchState('', 1, '', '');
     this.loadCards();
   }
 

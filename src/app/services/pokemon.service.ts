@@ -7,7 +7,6 @@ import { map, catchError } from 'rxjs/operators';
 interface SearchState {
   query: string;
   page: number;
-  scrollPosition: number;
   selectedSet: string;
   selectedType: string;
 }
@@ -28,12 +27,11 @@ export class PokemonService {
   ) {}
 
   // Método para guardar el estado
-  saveSearchState(query: string, page: number, scrollPosition: number, selectedSet: string = '', selectedType: string = '') {
+  saveSearchState(query: string, page: number, selectedSet: string = '', selectedType: string = '') {
     if (isPlatformBrowser(this.platformId)) {
       const state: SearchState = {
         query,
         page,
-        scrollPosition,
         selectedSet,
         selectedType
       };
@@ -48,12 +46,11 @@ export class PokemonService {
       return state ? JSON.parse(state) : {
         query: '',
         page: 1,
-        scrollPosition: 0,
         selectedSet: '',
         selectedType: ''
       };
     }
-    return { query: '', page: 1, scrollPosition: 0, selectedSet: '', selectedType: '' };
+    return { query: '', page: 1, selectedSet: '', selectedType: '' };
   }
 
   getCards(page: number = 1, pageSize: number = 16, query: string = '', set: string = '', type: string = ''): Observable<any> {
