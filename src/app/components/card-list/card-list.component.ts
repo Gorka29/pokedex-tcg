@@ -8,7 +8,7 @@ import { RouterModule, Router, RouterLink } from '@angular/router';
 @Component({
   selector: 'app-card-list',
   standalone: true,
-  imports: [CommonModule, RouterModule, RouterLink, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule],
   templateUrl: './card-list.component.html',
   styleUrl: './card-list.component.scss'
 })
