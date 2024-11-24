@@ -15,6 +15,17 @@ interface SearchState {
   };
 }
 
+interface PokemonCard {
+  id: string;
+  name: string;
+  set: {
+    id: string;
+  };
+  types?: string[];
+  rarity?: string;
+  hp?: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -170,13 +181,55 @@ export class PokemonService {
       );
   }
 
-  getCardsByIds(cardIds: string[]): Observable<any[]> {
+  getCardsByIds(
+    cardIds: string[],
+    searchQuery: string = '',
+    selectedSet: string = '',
+    selectedType: string = '',
+    selectedRarity: string = '',
+    hpRange: { min: number } = { min: 0 }
+  ): Observable<PokemonCard[]> {
     if (!cardIds.length) return of([]);
 
-    // Si estás usando una API, ajusta la URL según tu endpoint
     return this.http.get<any>(`${this.apiUrl}/cards?q=id:"${cardIds.join('" OR id:"')}"`)
       .pipe(
-        map(response => response.data),
+        map(response => {
+          let filteredCards = response.data as PokemonCard[];
+
+          // Aplicar filtros localmente
+          if (searchQuery) {
+            const query = searchQuery.toLowerCase();
+            filteredCards = filteredCards.filter(card =>
+              card.name.toLowerCase().includes(query)
+            );
+          }
+
+          if (selectedSet) {
+            filteredCards = filteredCards.filter((card: PokemonCard) =>
+              card.set.id === selectedSet
+            );
+          }
+
+          if (selectedType) {
+            filteredCards = filteredCards.filter(card =>
+              card.types && card.types.includes(selectedType)
+            );
+          }
+
+          if (selectedRarity) {
+            filteredCards = filteredCards.filter(card =>
+              card.rarity === selectedRarity
+            );
+          }
+
+          if (hpRange.min > 0) {
+            filteredCards = filteredCards.filter(card =>
+              parseInt(card.hp || '0') >= hpRange.min
+            );
+          }
+
+          return filteredCards;
+        }),
         catchError(error => {
           console.error('Error fetching cards by ids:', error);
           return of([]);

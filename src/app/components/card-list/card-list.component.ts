@@ -91,34 +91,71 @@ export class CardListComponent implements OnInit {
   loadCards() {
     this.loading = true;
     this.noResults = false;
+
     return new Promise<void>((resolve) => {
-      this.pokemonService.getCards(
-        this.currentPage,
-        16,
-        encodeURIComponent(this.searchQuery),
-        this.selectedSet,
-        this.selectedType,
-        this.selectedRarity,
-        this.hpRange
-      ).subscribe({
-        next: (response) => {
-          if (this.currentPage === 1) {
-            this.cards = response.data;
-            this.noResults = this.cards.length === 0;
-          } else {
-            this.cards = [...this.cards, ...response.data];
-          }
-          this.totalCount = response.totalCount;
-          this.loading = false;
-          resolve();
-        },
-        error: (error) => {
-          console.error('Error loading cards:', error);
+      if (this.showOnlyFavorites) {
+        const favorites = this.favoritesService.getFavorites();
+
+        if (favorites.length === 0) {
           this.loading = false;
           this.noResults = true;
+          this.cards = [];
+          this.totalCount = 0;
           resolve();
+          return;
         }
-      });
+
+        this.pokemonService.getCardsByIds(
+          favorites,
+          this.searchQuery,
+          this.selectedSet,
+          this.selectedType,
+          this.selectedRarity,
+          this.hpRange
+        ).subscribe({
+          next: (cards) => {
+            this.cards = cards;
+            this.noResults = this.cards.length === 0;
+            this.totalCount = cards.length;
+            this.loading = false;
+            resolve();
+          },
+          error: (error) => {
+            console.error('Error loading favorite cards:', error);
+            this.loading = false;
+            this.noResults = true;
+            resolve();
+          }
+        });
+      } else {
+        this.pokemonService.getCards(
+          this.currentPage,
+          16,
+          encodeURIComponent(this.searchQuery),
+          this.selectedSet,
+          this.selectedType,
+          this.selectedRarity,
+          this.hpRange
+        ).subscribe({
+          next: (response) => {
+            if (this.currentPage === 1) {
+              this.cards = response.data;
+            } else {
+              this.cards = [...this.cards, ...response.data];
+            }
+            this.noResults = this.cards.length === 0;
+            this.totalCount = response.totalCount;
+            this.loading = false;
+            resolve();
+          },
+          error: (error) => {
+            console.error('Error loading cards:', error);
+            this.loading = false;
+            this.noResults = true;
+            resolve();
+          }
+        });
+      }
     });
   }
 
@@ -253,33 +290,7 @@ export class CardListComponent implements OnInit {
     this.showOnlyFavorites = !this.showOnlyFavorites;
     this.currentPage = 1;
     this.cards = [];
-
-    if (this.showOnlyFavorites) {
-      this.loading = true;
-      const favorites = this.favoritesService.getFavorites();
-
-      if (favorites.length === 0) {
-        this.loading = false;
-        this.noResults = true;
-        return;
-      }
-
-      this.pokemonService.getCardsByIds(favorites).subscribe({
-        next: (cards) => {
-          this.cards = cards;
-          this.noResults = this.cards.length === 0;
-          this.loading = false;
-          this.totalCount = cards.length;
-        },
-        error: (error) => {
-          console.error('Error loading favorite cards:', error);
-          this.loading = false;
-          this.noResults = true;
-        }
-      });
-    } else {
-      this.loadCards();
-    }
+    this.loadCards();
   }
 
   generateHpOptions() {
