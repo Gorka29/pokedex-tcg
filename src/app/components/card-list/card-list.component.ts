@@ -251,9 +251,32 @@ export class CardListComponent implements OnInit {
 
   toggleFavoritesFilter(): void {
     this.showOnlyFavorites = !this.showOnlyFavorites;
+    this.currentPage = 1;
+    this.cards = [];
+
     if (this.showOnlyFavorites) {
+      this.loading = true;
       const favorites = this.favoritesService.getFavorites();
-      this.cards = this.cards.filter(card => favorites.includes(card.id));
+
+      if (favorites.length === 0) {
+        this.loading = false;
+        this.noResults = true;
+        return;
+      }
+
+      this.pokemonService.getCardsByIds(favorites).subscribe({
+        next: (cards) => {
+          this.cards = cards;
+          this.noResults = this.cards.length === 0;
+          this.loading = false;
+          this.totalCount = cards.length;
+        },
+        error: (error) => {
+          console.error('Error loading favorite cards:', error);
+          this.loading = false;
+          this.noResults = true;
+        }
+      });
     } else {
       this.loadCards();
     }

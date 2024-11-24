@@ -169,4 +169,18 @@ export class PokemonService {
         })
       );
   }
+
+  getCardsByIds(cardIds: string[]): Observable<any[]> {
+    if (!cardIds.length) return of([]);
+
+    // Si estás usando una API, ajusta la URL según tu endpoint
+    return this.http.get<any>(`${this.apiUrl}/cards?q=id:"${cardIds.join('" OR id:"')}"`)
+      .pipe(
+        map(response => response.data),
+        catchError(error => {
+          console.error('Error fetching cards by ids:', error);
+          return of([]);
+        })
+      );
+  }
 }
